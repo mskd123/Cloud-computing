@@ -1,0 +1,370 @@
+Task 2: Detecting Data Leaks Using SQL Injection Protection 
+Project Title
+Cloud-Based Data Leak Prevention System Using SQL Injection Detection and Protection
+1. Project Overview
+SQL Injection is one of the most common cyberattacks where attackers insert malicious SQL queries into application inputs to gain unauthorized access to a database.
+This project aims to:
+Detect SQL Injection attempts
+Prevent unauthorized database access
+Protect sensitive user information
+Secure cloud-hosted applications
+The system uses parameterized queries and input validation to stop SQL Injection attacks.
+2. Problem Statement
+Many web applications directly insert user input into SQL queries.
+Example:
+Python
+query = "SELECT * FROM users WHERE username='" + username + "'"
+An attacker can enter:
+SQL
+admin' OR '1'='1
+Resulting query:
+SQL
+SELECT * FROM users
+WHERE username='admin'
+OR '1'='1'
+Since '1'='1' is always true, the attacker may gain unauthorized access.
+3. Objectives
+Detect SQL Injection attempts.
+Secure user credentials.
+Protect cloud databases.
+Prevent data leakage.
+Provide secure authentication.
+4. System Architecture
+Plain text
+User
+  |
+  v
+Login Page
+  |
+  v
+Input Validation Module
+  |
+  v
+SQL Injection Detector
+  |
+  +---- Malicious Input ----> Block User
+  |
+  +---- Safe Input ---------> Database
+                                   |
+                                   v
+                             Authentication
+5. Functional Requirements
+User Login
+Users enter:
+Username
+Password
+Validation
+Checks:
+Empty fields
+SQL keywords
+Special attack characters
+SQL Injection Detection
+Detects:
+SQL
+'
+--
+;
+UNION
+DROP
+DELETE
+OR 1=1
+Authentication
+Allows only valid users.
+6. Technology Stack
+Component
+Technology
+Frontend
+HTML, CSS
+Backend
+Python Flask
+Database
+SQLite
+Security
+Parameterized Queries
+Cloud
+AWS EC2
+7. Project Folder Structure
+Plain text
+SQLInjectionProtection/
+
+│
+├── app.py
+├── database.db
+├── create_db.py
+│
+├── templates/
+│      └── login.html
+│
+├── static/
+│      └── style.css
+│
+└── requirements.txt
+8. Database Creation
+create_db.py
+Python
+import sqlite3
+
+conn = sqlite3.connect("database.db")
+
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+username TEXT UNIQUE,
+password TEXT
+)
+""")
+
+cursor.execute("""
+INSERT OR IGNORE INTO users
+(username,password)
+VALUES
+('admin','admin123')
+""")
+
+conn.commit()
+conn.close()
+
+print("Database Created Successfully")
+Run:
+Bash
+python create_db.py
+9. Frontend
+templates/login.html
+HTML
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Secure Login</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Secure Login System</h2>
+
+<form method="POST" action="/login">
+
+<input type="text"
+name="username"
+placeholder="Username">
+
+<input type="password"
+name="password"
+placeholder="Password">
+
+<button type="submit">
+Login
+</button>
+
+</form>
+
+</div>
+
+</body>
+</html>
+10. CSS Design
+static/style.css
+CSS
+body{
+font-family:Arial;
+background:#f0f2f5;
+}
+
+.container{
+width:350px;
+margin:auto;
+margin-top:100px;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px gray;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+}
+
+button{
+width:100%;
+padding:10px;
+margin-top:15px;
+background:green;
+color:white;
+border:none;
+}
+11. SQL Injection Detection Logic
+Dangerous Keywords
+Python
+dangerous_keywords = [
+"DROP",
+"DELETE",
+"UNION",
+"INSERT",
+"UPDATE",
+"--",
+";",
+"'",
+"OR 1=1"
+]
+12. Backend Application
+app.py
+Python
+from flask import Flask
+from flask import render_template
+from flask import request
+import sqlite3
+
+app = Flask(__name__)
+
+def get_connection():
+    return sqlite3.connect("database.db")
+
+@app.route('/')
+def home():
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+
+    username = request.form['username']
+    password = request.form['password']
+
+    suspicious_patterns = [
+        "'",
+        ";",
+        "--",
+        "DROP",
+        "DELETE",
+        "UNION",
+        "OR 1=1"
+    ]
+
+    for pattern in suspicious_patterns:
+
+        if pattern.lower() in username.lower():
+            return "SQL Injection Detected"
+
+        if pattern.lower() in password.lower():
+            return "SQL Injection Detected"
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM users WHERE username=? AND password=?",
+        (username,password)
+    )
+
+    user = cursor.fetchone()
+
+    conn.close()
+
+    if user:
+        return "Login Successful"
+
+    return "Invalid Username or Password"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+13. How SQL Injection Works
+Vulnerable Query
+Python
+query = "SELECT * FROM users WHERE username='" + username + "'"
+Attacker Input:
+SQL
+admin' OR '1'='1
+Generated Query:
+SQL
+SELECT * FROM users
+WHERE username='admin'
+OR '1'='1'
+Result:
+Plain text
+Unauthorized Login
+14. Secure Query
+Our project uses:
+Python
+cursor.execute(
+"SELECT * FROM users WHERE username=? AND password=?",
+(username,password)
+)
+Database treats input as data only.
+Attack fails.
+15. Test Cases
+Test Case 1
+Input:
+Plain text
+Username: admin
+Password: admin123
+Output:
+Plain text
+Login Successful
+Test Case 2
+Input:
+Plain text
+Username: wrong
+Password: wrong
+Output:
+Plain text
+Invalid Username or Password
+Test Case 3
+Input:
+SQL
+Username:
+admin' OR '1'='1
+
+Password:
+anything
+Output:
+Plain text
+SQL Injection Detected
+16. Cloud Deployment
+Install Flask
+Bash
+pip install flask
+Run Application
+Bash
+python app.py
+Access Application
+Plain text
+http://localhost:5000
+or
+Plain text
+http://AWS-IP:5000
+17. Security Features
+Input Validation
+Checks harmful inputs before database access.
+Parameterized Queries
+Prevents execution of malicious SQL code.
+Authentication
+Allows only valid users.
+Data Leak Prevention
+Protects confidential information.
+18. Advantages
+Prevents SQL Injection attacks.
+Protects sensitive information.
+Improves cloud security.
+Prevents unauthorized access.
+Easy to deploy.
+Scalable for large systems.
+19. Applications
+Banking Systems
+E-Commerce Websites
+Hospital Management Systems
+Student Portals
+Government Websites
+Cloud Applications
+20. Future Enhancements
+Password Hashing using BCrypt
+Multi-Factor Authentication (MFA)
+Intrusion Detection System
+AI-Based Threat Detection
+Real-Time Security Monitoring
+Cloud Firewall Integration
