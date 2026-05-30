@@ -1,0 +1,381 @@
+Task 3: Cloud-Based Bus Pass System 
+Project Title
+Cloud-Based Bus Pass Booking and Management System
+1. Introduction
+The Cloud-Based Bus Pass System is an online application that allows passengers to book bus passes, make payments, and download their passes through a cloud-hosted platform.
+Traditional bus pass systems require users to visit transport offices physically, resulting in long queues and manual record management. This project automates the entire process and stores data securely in the cloud.
+2. Objective
+The objectives of this project are:
+Provide online bus pass booking.
+Reduce manual paperwork.
+Manage passenger records efficiently.
+Enable cloud-based access.
+Improve scalability and reliability.
+Generate digital bus passes.
+3. Problem Statement
+Traditional bus pass systems face several issues:
+Long waiting times.
+Manual data entry errors.
+Difficult record management.
+Limited accessibility.
+High maintenance costs.
+This system solves these issues using cloud computing technology.
+4. System Architecture
+Plain text
+Passenger
+    |
+    V
+Web Application
+    |
+    V
+Flask Backend
+    |
+    V
+Cloud Database
+    |
+    V
+Bus Pass Generation
+5. Functional Requirements
+Passenger Registration
+Users can register with:
+Name
+Email
+Phone Number
+Address
+Pass Booking
+Passengers can:
+Select Route
+Choose Pass Type
+Submit Application
+Pass Generation
+System generates:
+Pass ID
+Passenger Details
+Route Information
+Data Storage
+All information is stored in a cloud database.
+6. Technology Stack
+Component
+Technology
+Frontend
+HTML, CSS
+Backend
+Python Flask
+Database
+SQLite/MySQL
+Cloud Platform
+AWS/Azure
+API Testing
+Postman
+7. Project Folder Structure
+Plain text
+CloudBusPassSystem/
+
+│
+├── app.py
+├── database.db
+├── create_db.py
+│
+├── templates/
+│   ├── register.html
+│   ├── booking.html
+│   └── pass.html
+│
+├── static/
+│   └── style.css
+│
+└── requirements.txt
+8. Database Design
+Create Database
+create_db.py
+Python
+import sqlite3
+
+conn = sqlite3.connect("database.db")
+
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS passengers(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT,
+email TEXT,
+phone TEXT,
+route TEXT,
+pass_type TEXT
+)
+""")
+
+conn.commit()
+conn.close()
+
+print("Database Created Successfully")
+Run:
+Bash
+python create_db.py
+9. Frontend Design
+register.html
+HTML
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Bus Pass Registration</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Bus Pass Registration</h2>
+
+<form action="/register" method="POST">
+
+<input type="text"
+name="name"
+placeholder="Enter Name"
+required>
+
+<input type="email"
+name="email"
+placeholder="Enter Email"
+required>
+
+<input type="text"
+name="phone"
+placeholder="Enter Phone Number"
+required>
+
+<select name="route">
+
+<option>Route A</option>
+<option>Route B</option>
+<option>Route C</option>
+
+</select>
+
+<select name="pass_type">
+
+<option>Daily</option>
+<option>Weekly</option>
+<option>Monthly</option>
+
+</select>
+
+<button type="submit">
+Apply Pass
+</button>
+
+</form>
+
+</div>
+
+</body>
+</html>
+10. CSS Design
+style.css
+CSS
+body{
+font-family:Arial;
+background:#f4f4f4;
+}
+
+.container{
+width:400px;
+margin:auto;
+margin-top:50px;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px gray;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-top:10px;
+}
+
+button{
+width:100%;
+padding:10px;
+margin-top:15px;
+background:green;
+color:white;
+border:none;
+cursor:pointer;
+}
+11. Backend Application
+app.py
+Python
+from flask import Flask
+from flask import render_template
+from flask import request
+import sqlite3
+
+app = Flask(__name__)
+
+def connect_db():
+    return sqlite3.connect("database.db")
+
+@app.route('/')
+def home():
+    return render_template("register.html")
+
+@app.route('/register', methods=['POST'])
+def register():
+
+    name = request.form['name']
+    email = request.form['email']
+    phone = request.form['phone']
+    route = request.form['route']
+    pass_type = request.form['pass_type']
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    INSERT INTO passengers
+    (name,email,phone,route,pass_type)
+    VALUES(?,?,?,?,?)
+    """,
+    (name,email,phone,route,pass_type))
+
+    passenger_id = cursor.lastrowid
+
+    conn.commit()
+    conn.close()
+
+    return f'''
+    <h2>Bus Pass Generated Successfully</h2>
+
+    <p>Pass ID: {passenger_id}</p>
+    <p>Name: {name}</p>
+    <p>Route: {route}</p>
+    <p>Pass Type: {pass_type}</p>
+    '''
+
+if __name__ == "__main__":
+    app.run(debug=True)
+12. Bus Pass Generation Logic
+Passenger Details
+Plain text
+Name : Arun Kumar
+Route : Route A
+Pass Type : Monthly
+System Generates
+Plain text
+Pass ID : 101
+Digital Pass
+Plain text
+----------------------
+BUS PASS
+----------------------
+
+Pass ID : 101
+
+Name : Arun Kumar
+
+Route : Route A
+
+Pass Type : Monthly
+
+Status : Active
+
+----------------------
+13. Additional Ticket Fare Calculation
+Python
+def calculate_fare(pass_type):
+
+    if pass_type == "Daily":
+        return 50
+
+    elif pass_type == "Weekly":
+        return 250
+
+    elif pass_type == "Monthly":
+        return 1000
+Usage:
+Python
+fare = calculate_fare(pass_type)
+14. Sample Output
+Input
+Plain text
+Name : Arun
+Email : arun@gmail.com
+Phone : 9876543210
+Route : Route B
+Pass Type : Monthly
+Output
+Plain text
+Bus Pass Generated Successfully
+
+Pass ID : 1
+
+Name : Arun
+
+Route : Route B
+
+Pass Type : Monthly
+15. Cloud Deployment
+Install Flask
+Bash
+pip install flask
+Run Application
+Bash
+python app.py
+Access Application
+Plain text
+http://localhost:5000
+or
+Plain text
+http://AWS-Public-IP:5000
+16. Advantages
+Online booking facility.
+Reduces paperwork.
+Easy record management.
+Cloud accessibility.
+Faster service.
+Scalable system.
+Secure data storage.
+Automated pass generation.
+17. Applications
+Government Transport Departments
+College Bus Services
+School Transportation
+Private Transport Agencies
+City Bus Networks
+Corporate Employee Transportation
+18. Future Enhancements
+Online Payment Gateway
+Integrate:
+UPI
+Google Pay
+PhonePe
+Credit/Debit Cards
+QR Code Pass
+Generate QR codes for verification.
+Email Notifications
+Send pass details automatically.
+Mobile Application
+Develop Android/iOS version.
+Real-Time Bus Tracking
+Integrate GPS tracking.
+19. Testing
+Test Case 1
+Input:
+Plain text
+Name: Arun
+Pass Type: Monthly
+Expected Output:
+Plain text
+Bus Pass Generated Successfully
+Test Case 2
+Input:
+Plain text
+Phone Field Empty
+Expected Output:
+Plain text
+Validation Error
+  
