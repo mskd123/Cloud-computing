@@ -1,0 +1,295 @@
+Task 1: Data Redundancy Removal System 
+Project Title
+Cloud-Based Data Redundancy Removal System
+Objective
+The main objective of this project is to identify and remove duplicate records from a cloud database. The system validates new data before insertion and stores only unique records, thereby improving database efficiency, accuracy, and storage utilization.
+Problem Statement
+In cloud databases, duplicate records often occur due to:
+Multiple user submissions
+Data synchronization issues
+Human entry mistakes
+System integration errors
+These duplicate records consume storage space, reduce performance, and create inconsistencies.
+The proposed system automatically detects duplicates and prevents redundant data from being stored.
+System Architecture
+User
+  |
+  v
+Web Interface
+  |
+  v
+Flask Application
+  |
+  v
+Duplicate Checker
+  |
+  +------ Duplicate Found -----> Reject Entry
+  |
+  +------ Unique Data ---------> Database
+Functional Requirements
+1. User Registration
+Users can enter:
+Name
+Email
+Phone Number
+2. Validation Module
+Checks:
+Email uniqueness
+Phone number uniqueness
+Empty field validation
+3. Duplicate Detection
+System compares:
+New Email
+Existing Email
+and
+New Phone Number
+Existing Phone Number
+4. Data Storage
+Only unique records are stored.
+Technology Stack
+
+Technology
+Frontend
+HTML, CSS
+Backend
+Python Flask
+Database
+SQLite
+Cloud
+AWS / Azure
+API Testing
+Postman
+Project Folder 
+DataRedundancySystem/
+
+│
+├── app.py
+├── database.db
+│
+├── templates/
+│      └── index.html
+│
+├── static/
+│      └── style.css
+│
+└── requirements.txt
+Step 1: Install Required Packages
+Bash
+pip install flask
+Step 2: Create Database
+Create file:
+create_db.py
+import sqlite3
+
+conn = sqlite3.connect('database.db')
+
+cursor = conn.cursor()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS users(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT NOT NULL,
+email TEXT UNIQUE,
+phone TEXT UNIQUE
+)
+''')
+
+conn.commit()
+conn.close()
+
+print("Database Created Successfully")
+Run:
+Bash
+python create_db.py
+Step 3: Backend Code
+app.py
+from flask import Flask, render_template, request
+import sqlite3
+
+app = Flask(__name__)
+
+def get_connection():
+    conn = sqlite3.connect('database.db')
+    return conn
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/register', methods=['POST'])
+def register():
+
+    name = request.form['name']
+    email = request.form['email']
+    phone = request.form['phone']
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM users WHERE email=? OR phone=?",
+        (email, phone)
+    )
+
+    duplicate = cursor.fetchone()
+
+    if duplicate:
+        conn.close()
+        return "Duplicate Data Found"
+
+    cursor.execute(
+        "INSERT INTO users(name,email,phone) VALUES(?,?,?)",
+        (name,email,phone)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return "Data Added Successfully"
+
+if __name__ == "__main__":
+    app.run(debug=True)
+Step 4: Frontend
+templates/index.html
+HTML
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Data Redundancy Removal System</title>
+</head>
+
+<body>
+
+<h2>User Registration</h2>
+
+<form action="/register" method="POST">
+
+<label>Name:</label>
+<input type="text" name="name">
+
+<br><br>
+
+<label>Email:</label>
+<input type="email" name="email">
+
+<br><br>
+
+<label>Phone:</label>
+<input type="text" name="phone">
+
+<br><br>
+
+<button type="submit">
+Register
+</button>
+
+</form>
+
+</body>
+
+</html>
+Step 5: CSS Design
+static/style.css
+CSS
+body{
+font-family:Arial;
+background:#f4f4f4;
+padding:30px;
+}
+
+form{
+background:white;
+padding:20px;
+width:300px;
+border-radius:10px;
+}
+
+input{
+width:100%;
+padding:8px;
+margin-top:5px;
+}
+
+button{
+padding:10px;
+background:green;
+color:white;
+border:none;
+}
+How Duplicate Detection Works
+Existing Database
+ID
+Name
+Email
+Phone
+1
+Arun
+arun@gmail.com
+9876543210
+New Entry
+Plain text
+Name : Kumar
+Email : arun@gmail.com
+Phone : 9999999999
+System Check
+SQL
+SELECT * FROM users
+WHERE email='arun@gmail.com'
+OR phone='9999999999';
+Result:
+Plain text
+Duplicate Found
+Data Rejected.
+Sample Output
+First Entry
+Plain text
+Name : Arun
+Email : arun@gmail.com
+Phone : 9876543210
+Output:
+Plain text
+Data Added Successfully
+Duplicate Entry
+Plain text
+Name : Kumar
+Email : arun@gmail.com
+Phone : 9999999999
+Output:
+Plain text
+Duplicate Data Found
+Cloud Deployment (AWS)
+Deploy on AWS EC2
+Create EC2 Instance
+Install Python
+Upload Project Files
+Install Flask
+Bash
+pip install flask
+Run Application
+Bash
+python app.py
+Access through Public IP
+Plain text
+http://your-ec2-public-ip:5000
+Advantages
+Eliminates duplicate records.
+Improves database performance.
+Reduces storage consumption.
+Maintains data consistency.
+Enhances cloud database efficiency.
+Prevents inaccurate reports.
+Applications
+Banking Systems
+Hospital Management Systems
+Student Databases
+E-Commerce Platforms
+Employee Management Systems
+Cloud Storage Services
+Future Enhancements
+AI-based duplicate detection
+Fuzzy matching algorithms
+Email OTP verification
+Cloud database integration (MySQL, AWS RDS)
+Dashboard analytics
+Real-time duplicate monitoring
