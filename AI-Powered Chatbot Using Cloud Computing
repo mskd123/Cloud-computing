@@ -1,0 +1,416 @@
+Task 4: AI-Powered Chatbot Using Cloud Computing 
+Cloud-Based AI Chatbot for Customer Support
+1. Introduction
+Artificial Intelligence (AI) chatbots are software applications designed to simulate human conversation. They help users by answering questions instantly, reducing human workload, and providing 24/7 customer support.
+This project develops a cloud-based AI chatbot capable of responding to user queries using predefined responses and AI-based processing.
+The chatbot can be integrated into websites, educational portals, e-commerce platforms, and customer support systems.
+2. Objective
+The objectives of this project are:
+Provide instant responses to users.
+Reduce customer support workload.
+Enable 24/7 availability.
+Store conversation data in the cloud.
+Improve user experience.
+Demonstrate cloud-based AI application deployment.
+3. Problem Statement
+Organizations often face challenges such as:
+Large numbers of customer queries.
+Delayed responses.
+High operational costs.
+Limited support availability.
+An AI chatbot can automatically answer common questions and provide continuous support.
+4. System Architecture
+Plain text
+User
+  |
+  V
+Website Interface
+  |
+  V
+Flask Application
+  |
+  V
+AI Chatbot Engine
+  |
+  +------ Predefined Responses
+  |
+  +------ AI Model Processing
+  |
+  V
+Response Sent To User
+5. Functional Requirements
+User Query Input
+Users can type questions such as:
+What is your name?
+What services do you provide?
+How can I contact support?
+Chatbot Processing
+The chatbot:
+Receives user messages.
+Identifies keywords.
+Generates responses.
+Sends responses back.
+Cloud Deployment
+The chatbot can be hosted on:
+AWS
+Azure
+Google Cloud
+6. Technology Stack
+Component
+Technology
+Frontend
+HTML, CSS, JavaScript
+Backend
+Python Flask
+AI Model
+Transformers (GPT-2)
+Database
+SQLite
+Cloud
+AWS EC2
+API
+Flask REST API
+7. Project Folder Structure
+Plain text
+AIChatbot/
+
+│
+├── app.py
+├── database.db
+├── create_db.py
+│
+├── templates/
+│      └── index.html
+│
+├── static/
+│      └── style.css
+│
+└── requirements.txt
+8. Install Required Libraries
+Bash
+pip install flask
+pip install transformers
+pip install torch
+9. Database Creation
+create_db.py
+Python
+import sqlite3
+
+conn = sqlite3.connect("database.db")
+
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS chats(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+user_message TEXT,
+bot_response TEXT
+)
+""")
+
+conn.commit()
+conn.close()
+
+print("Database Created Successfully")
+Run:
+Bash
+python create_db.py
+10. Frontend Design
+templates/index.html
+HTML
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>AI Chatbot</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="chat-container">
+
+<h2>AI Chatbot</h2>
+
+<div id="chat-box"></div>
+
+<input
+type="text"
+id="message"
+placeholder="Type your message">
+
+<button onclick="sendMessage()">
+Send
+</button>
+
+</div>
+
+<script>
+
+async function sendMessage(){
+
+let message =
+document.getElementById("message").value;
+
+let response =
+await fetch("/chat",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+message:message
+})
+
+});
+
+let data =
+await response.json();
+
+document.getElementById("chat-box")
+.innerHTML +=
+"<p><b>You:</b> "
++ message +
+"</p>";
+
+document.getElementById("chat-box")
+.innerHTML +=
+"<p><b>Bot:</b> "
++ data.response +
+"</p>";
+}
+
+</script>
+
+</body>
+</html>
+11. CSS Design
+static/style.css
+CSS
+body{
+font-family:Arial;
+background:#f4f4f4;
+}
+
+.chat-container{
+width:500px;
+margin:auto;
+margin-top:50px;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px gray;
+}
+
+#chat-box{
+height:300px;
+overflow-y:scroll;
+border:1px solid #ccc;
+padding:10px;
+margin-bottom:10px;
+}
+
+input{
+width:75%;
+padding:10px;
+}
+
+button{
+padding:10px;
+background:green;
+color:white;
+border:none;
+cursor:pointer;
+}
+12. Simple Rule-Based Chatbot
+app.py
+Python
+from flask import Flask
+from flask import render_template
+from flask import request
+from flask import jsonify
+import sqlite3
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return render_template("index.html")
+
+@app.route('/chat', methods=['POST'])
+def chat():
+
+    data = request.json
+
+    message = data['message'].lower()
+
+    response = "Sorry, I didn't understand."
+
+    if "hello" in message:
+        response = "Hello! How can I help you?"
+
+    elif "name" in message:
+        response = "I am an AI Chatbot."
+
+    elif "course" in message:
+        response = "We provide Cloud Computing courses."
+
+    elif "contact" in message:
+        response = "Contact us at support@example.com"
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    INSERT INTO chats
+    (user_message, bot_response)
+    VALUES (?,?)
+    """,(message,response))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "response":response
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True)
+13. AI-Based Chatbot Using GPT-2
+Replace the chat function with:
+Python
+from transformers import pipeline
+
+chatbot = pipeline(
+"text-generation",
+model="gpt2"
+)
+
+@app.route('/chat', methods=['POST'])
+def chat():
+
+    message = request.json['message']
+
+    result = chatbot(
+    message,
+    max_length=50,
+    num_return_sequences=1
+    )
+
+    response = result[0]['generated_text']
+
+    return jsonify({
+        "response":response
+    })
+14. Sample Conversation
+User
+Plain text
+Hello
+Chatbot
+Plain text
+Hello! How can I help you?
+User
+Plain text
+What is your name?
+Chatbot
+Plain text
+I am an AI Chatbot.
+User
+Plain text
+How can I contact support?
+Chatbot
+Plain text
+Contact us at support@example.com
+15. Database Storage Example
+ID
+User Message
+Bot Response
+1
+hello
+Hello! How can I help you?
+2
+name
+I am an AI Chatbot
+3
+contact
+Contact support@example.com
+16. Cloud Deployment
+Install Dependencies
+Bash
+pip install flask
+pip install transformers
+pip install torch
+Run Application
+Bash
+python app.py
+Access Through Browser
+Plain text
+http://localhost:5000
+or
+Plain text
+http://AWS-Public-IP:5000
+17. Advantages
+Available 24/7.
+Reduces customer support workload.
+Provides instant responses.
+Easy cloud deployment.
+Improves customer satisfaction.
+Supports multiple users simultaneously.
+Can be integrated with websites.
+18. Applications
+Education
+Student query systems
+Online learning platforms
+Healthcare
+Appointment booking
+Patient support
+Banking
+Customer assistance
+Account information
+E-Commerce
+Product recommendations
+Order tracking
+Government Services
+Citizen support portals
+19. Future Enhancements
+Voice-Based Chatbot
+Use speech recognition for voice interaction.
+Multilingual Support
+Support:
+English
+Tamil
+Hindi
+Telugu
+Sentiment Analysis
+Detect user emotions and respond accordingly.
+Generative AI Integration
+Integrate advanced LLMs for better conversations.
+Mobile Application
+Create Android and iOS chatbot apps.
+20. Testing
+Test Case 1
+Input:
+Plain text
+Hello
+Expected Output:
+Plain text
+Hello! How can I help you?
+Test Case 2
+Input:
+Plain text
+What is your name?
+Expected Output:
+Plain text
+I am an AI Chatbot.
+Test Case 3
+Input:
+Plain text
+How can I contact support?
+Expected Output:
+Plain text
+Contact us at support@example.com
+  
